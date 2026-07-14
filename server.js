@@ -65,17 +65,16 @@ app.get("/callback", async (req, res) => {
       data.body.refresh_token
     );
 
+    req.session.accessToken =
+  data.body.access_token;
+
+req.session.refreshToken =
+  data.body.refresh_token;
+
     const me =
       await spotifyApi.getMe();
 
-    res.send(`
-    
-    <h2>Conectado correctamente</h2>
-
-    Usuario:
-    ${me.body.display_name}
-    
-    `);
+    res.redirect("/playlists");
 
   } catch (err) {
 
@@ -87,10 +86,53 @@ app.get("/callback", async (req, res) => {
 
 });
 
-app.listen(3000, () => {
+app.get("/playlists", async (req, res) => {
 
-  console.log(
-    "Servidor iniciado en puerto 3000"
-  );
+  try {
 
+    if (!req.session.accessToken) {
+      return res.redirect("/");
+    }
+
+    spotifyApi.setAccessToken(
+      req.session.accessToken
+    );
+
+    const data =
+      await spotifyApi.getUserPlaylists();
+
+    let html = `
+      <h1>Mis Playlists</h1>
+      <ul>
+    `;
+
+    data.body.items.forEach(p => {
+
+      html += `
+        <li>
+          ${p.name}
+          (${p.tracks.total} canciones)
+        </li>
+      `;
+
+    });
+
+    html += "</ul>";
+
+    res.send(html);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.send("Error cargando playlists");
+
+  }
+
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Servidor iniciado en puerto " + PORT);
 });
