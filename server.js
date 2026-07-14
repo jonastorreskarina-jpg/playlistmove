@@ -90,16 +90,27 @@ app.get("/playlists", async (req, res) => {
 
   try {
 
-    if (!req.session.accessToken) {
-      return res.redirect("/");
-    }
+    console.log("SESSION:", req.session);
+
+if (!req.session.accessToken) {
+
+  console.log("NO HAY TOKEN");
+
+  return res.send("NO HAY TOKEN EN SESION");
+
+}
 
     spotifyApi.setAccessToken(
       req.session.accessToken
     );
 
     const data =
-      await spotifyApi.getUserPlaylists();
+  await spotifyApi.getUserPlaylists();
+
+console.log(
+  "PLAYLISTS:",
+  data.body.items.length
+);
 
     let html = `
       <h1>Mis Playlists</h1>
