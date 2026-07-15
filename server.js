@@ -35,11 +35,12 @@ app.get("/", (req, res) => {
 app.get("/login", (req, res) => {
 
   const scopes = [
-    "playlist-read-private",
-    "playlist-read-collaborative",
-    "playlist-modify-public",
-    "playlist-modify-private"
-  ];
+  "playlist-read-private",
+  "playlist-read-collaborative",
+  "playlist-modify-public",
+  "playlist-modify-private",
+  "user-library-read"
+];
 
   const authorizeURL =
     spotifyApi.createAuthorizeURL(scopes);
@@ -101,10 +102,18 @@ app.get("/playlists", async (req, res) => {
     const data =
       await spotifyApi.getUserPlaylists();
 
+      const likedSongs =
+  await spotifyApi.getMySavedTracks({
+    limit: 1
+  });
+
     let html = `
-      <h1>Mis Playlists</h1>
-      <ul>
-    `;
+  <h1>Mis Playlists</h1>
+
+  <h3>❤️ Canciones que te gustan (${likedSongs.body.total})</h3>
+
+  <ul>
+`;
 
     data.body.items.forEach(p => {
 
