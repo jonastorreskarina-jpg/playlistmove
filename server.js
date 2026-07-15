@@ -484,17 +484,41 @@ app.get("/copy-one", async (req, res) => {
     console.log("PASO 6");
 
     const newPlaylist =
-      await destinationApi.createPlaylist(
-        "Copia Alegria",
-        { public: false }
-      );
+  await destinationApi.createPlaylist(
+    "Copia Alegria",
+    { public: false }
+  );
 
-    console.log("PASO 7");
+console.log("PASO 7");
 
-    await destinationApi.addTracksToPlaylist(
-      newPlaylist.body.id,
-      trackUris
-    );
+console.log(
+  "PLAYLIST ID:",
+  newPlaylist.body.id
+);
+
+console.log(
+  "PLAYLIST OWNER:",
+  newPlaylist.body.owner.id
+);
+
+console.log(
+  JSON.stringify(
+    newPlaylist.body,
+    null,
+    2
+  )
+);
+
+    res.send(`
+<pre>
+${JSON.stringify(
+  newPlaylist.body,
+  null,
+  2
+)}
+</pre>
+`);
+return;
 
     console.log("PASO 8");
 
