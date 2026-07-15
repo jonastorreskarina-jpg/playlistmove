@@ -61,13 +61,19 @@ app.get("/login-destination", (req, res) => {
     "user-library-read"
   ];
 
-  const authorizeURL =
-    spotifyApi.createAuthorizeURL(
-      scopes,
-      "destination"
-    );
+  const params = new URLSearchParams({
+    client_id: process.env.SPOTIFY_CLIENT_ID,
+    response_type: "code",
+    redirect_uri:
+      process.env.SPOTIFY_REDIRECT_URI_DESTINATION,
+    scope: scopes.join(" "),
+    state: "destination"
+  });
 
-  res.redirect(authorizeURL);
+  res.redirect(
+    "https://accounts.spotify.com/authorize?" +
+    params.toString()
+  );
 
 });
 
@@ -77,8 +83,20 @@ app.get("/callback", async (req, res) => {
 
   try {
 
-    const data =
-      await spotifyApi.authorizationCodeGrant(code);
+    const destinationApi =
+  new SpotifyWebApi({
+    clientId:
+      process.env.SPOTIFY_CLIENT_ID,
+    clientSecret:
+      process.env.SPOTIFY_CLIENT_SECRET,
+    redirectUri:
+      process.env.SPOTIFY_REDIRECT_URI_DESTINATION
+  });
+
+const data =
+  await destinationApi.authorizationCodeGrant(
+    code
+  );
 
     spotifyApi.setAccessToken(
       data.body.access_token
@@ -138,12 +156,12 @@ app.get(
             process.env.SPOTIFY_REDIRECT_URI
         });
 
-      api.setAccessToken(
+      destinationApi.setAccessToken(
         data.body.access_token
       );
 
       const me =
-        await api.getMe();
+  await destinationApi.getMe();
 
       req.session.destinationUserId =
         me.body.id;
