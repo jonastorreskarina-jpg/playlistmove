@@ -45,7 +45,10 @@ app.get("/login", (req, res) => {
 ];
 
   const authorizeURL =
-    spotifyApi.createAuthorizeURL(scopes);
+  spotifyApi.createAuthorizeURL(
+    scopes,
+    "origin"
+  );
 
 console.log(
   "ORIGIN URI:",
@@ -66,25 +69,13 @@ app.get("/login-destination", (req, res) => {
     "user-library-read"
   ];
 
-  const params = new URLSearchParams({
-    client_id: process.env.SPOTIFY_CLIENT_ID,
-    response_type: "code",
-    redirect_uri:
-      process.env.SPOTIFY_REDIRECT_URI_DESTINATION,
-    scope: scopes.join(" "),
-    state: "destination"
-  });
+  const authorizeURL =
+    spotifyApi.createAuthorizeURL(
+      scopes,
+      "destination"
+    );
 
-console.log(
-  "DESTINATION URL:",
-  "https://accounts.spotify.com/authorize?" +
-  params.toString()
-);
-
-  res.redirect(
-    "https://accounts.spotify.com/authorize?" +
-    params.toString()
-  );
+  res.redirect(authorizeURL);
 
 });
 
@@ -92,10 +83,44 @@ app.get("/callback", async (req, res) => {
 
   const code = req.query.code;
 
+  const state = req.query.state;
+
   try {
 
     const data =
       await spotifyApi.authorizationCodeGrant(code);
+
+      if (state === "destination") {
+
+  req.session.destinationAccessToken =
+    data.body.access_token;
+
+  req.session.destinationRefreshToken =
+    data.body.refresh_token;
+
+  spotifyApi.setAccessToken(
+    data.body.access_token
+  );
+
+  const me =
+    await spotifyApi.getMe();
+
+  req.session.destinationUserId =
+    me.body.id;
+
+  return res.send(`
+    <h1>Cuenta destino conectada</h1>
+
+    <p>
+      Usuario: ${me.body.display_name}
+    </p>
+
+    <a href="/transfer">
+      Iniciar transferencia
+    </a>
+  `);
+
+}
 
     spotifyApi.setAccessToken(
       data.body.access_token
@@ -123,69 +148,7 @@ app.get("/callback", async (req, res) => {
 
 });
 
-app.get(
-  "/callback-destination",
-  async (req, res) => {
 
-    const code = req.query.code;
-
-    try {
-
-      const destinationApi =
-  new SpotifyWebApi({
-    clientId:
-      process.env.SPOTIFY_CLIENT_ID,
-    clientSecret:
-      process.env.SPOTIFY_CLIENT_SECRET,
-    redirectUri:
-      process.env.SPOTIFY_REDIRECT_URI_DESTINATION
-  });
-
-const data =
-  await destinationApi.authorizationCodeGrant(
-    code
-  );
-
-req.session.destinationAccessToken =
-  data.body.access_token;
-
-req.session.destinationRefreshToken =
-  data.body.refresh_token;
-
-destinationApi.setAccessToken(
-  data.body.access_token
-);
-
-const me =
-  await destinationApi.getMe();
-
-req.session.destinationUserId =
-  me.body.id;
-
-res.send(`
-  <h1>Cuenta destino conectada</h1>
-
-  <p>
-    Usuario: ${me.body.display_name}
-  </p>
-
-  <a href="/transfer">
-    Iniciar transferencia
-  </a>
-`);
-
-    } catch (err) {
-
-      console.log(err);
-
-      res.send(
-        "Error conectando cuenta destino"
-      );
-
-    }
-
-  }
-);
 
 app.get("/playlists", async (req, res) => {
 
