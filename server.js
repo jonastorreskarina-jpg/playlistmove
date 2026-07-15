@@ -76,8 +76,9 @@ app.get("/login-destination", (req, res) => {
   });
 
 console.log(
-  "DESTINATION URI:",
-  process.env.SPOTIFY_REDIRECT_URI_DESTINATION
+  "DESTINATION URL:",
+  "https://accounts.spotify.com/authorize?" +
+  params.toString()
 );
 
   res.redirect(
