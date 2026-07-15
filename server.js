@@ -399,21 +399,18 @@ app.get("/test-read", async (req, res) => {
       req.session.accessToken
     );
 
-    const tracks =
-      await spotifyApi.getPlaylistTracks(
-        "1XBaKyBtSyRv6SJD4bD02G"
+    const playlistId =
+      "1XBaKyBtSyRv6SJD4bD02G";
+
+    const playlist =
+      await spotifyApi.getPlaylist(
+        playlistId
       );
 
     res.send(`
       <pre>
 ${JSON.stringify(
-  tracks.body.items.map(t => ({
-    name: t.track.name,
-    artist:
-      t.track.artists
-        .map(a => a.name)
-        .join(", ")
-  })),
+  playlist.body,
   null,
   2
 )}
@@ -422,14 +419,17 @@ ${JSON.stringify(
 
   } catch (err) {
 
-    console.log(err);
+    console.log("ERROR:");
+    console.log(err.body || err);
 
     res.send(
+      "<pre>" +
       JSON.stringify(
         err.body || err,
         null,
         2
-      )
+      ) +
+      "</pre>"
     );
 
   }
