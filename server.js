@@ -50,12 +50,9 @@ app.get("/login", (req, res) => {
     "origin"
   );
 
-console.log(
-  "ORIGIN URI:",
-  process.env.SPOTIFY_REDIRECT_URI
-);
+console.log("AUTHORIZE URL:", authorizeURL);
 
-  res.redirect(authorizeURL);
+res.redirect(authorizeURL);
 
 });
 
