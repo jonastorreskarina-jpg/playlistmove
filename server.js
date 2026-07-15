@@ -6,6 +6,8 @@ const session = require("express-session");
 
 const app = express();
 
+app.use(express.urlencoded({ extended: true }));
+
 app.use(session({
   secret: "playlistmove",
   resave: false,
@@ -110,18 +112,21 @@ app.get("/playlists", async (req, res) => {
     let html = `
   <h1>Mis Playlists</h1>
 
-  <label>
-    <input
-      type="checkbox"
-      value="liked"
-    >
-    ❤️ Canciones que te gustan
-    (${likedSongs.body.total})
-  </label>
+  <form action="/selected" method="post">
 
-  <br><br>
+    <label>
+      <input
+        type="checkbox"
+        name="playlist"
+        value="liked"
+      >
+      ❤️ Canciones que te gustan
+      (${likedSongs.body.total})
+    </label>
 
-  <ul>
+    <br><br>
+
+    <ul>
 `;
 
     data.body.items.forEach(p => {
@@ -139,7 +144,17 @@ app.get("/playlists", async (req, res) => {
 
 });
 
-    html += "</ul>";
+    html += `
+  </ul>
+
+  <br>
+
+  <button type="submit">
+    Continuar
+  </button>
+
+  </form>
+`;
 
     res.send(html);
 
@@ -150,6 +165,18 @@ app.get("/playlists", async (req, res) => {
     res.send("Error cargando playlists");
 
   }
+
+});
+
+app.post("/selected", (req, res) => {
+
+  res.send(`
+    <h1>Selección recibida</h1>
+
+    <pre>
+${JSON.stringify(req.body, null, 2)}
+    </pre>
+  `);
 
 });
 
