@@ -399,22 +399,17 @@ app.get("/test-read", async (req, res) => {
       req.session.accessToken
     );
 
-    const playlistId =
-      req.session.selectedPlaylists[1];
-
-    const tracks =
-      await spotifyApi.getPlaylistTracks(
-        playlistId
-      );
+    const playlists =
+      await spotifyApi.getUserPlaylists();
 
     res.send(`
-      <h1>Tracks encontrados</h1>
-
       <pre>
 ${JSON.stringify(
-  tracks.body.items.map(
-    t => t.track.name
-  ),
+  playlists.body.items.map(p => ({
+    id: p.id,
+    name: p.name,
+    owner: p.owner.display_name
+  })),
   null,
   2
 )}
@@ -425,7 +420,13 @@ ${JSON.stringify(
 
     console.log(err);
 
-    res.send("Error");
+    res.send(
+      JSON.stringify(
+        err.body || err,
+        null,
+        2
+      )
+    );
 
   }
 
