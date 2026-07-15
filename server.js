@@ -315,6 +315,55 @@ ${JSON.stringify({
 
 });
 
+app.get("/create-test-playlist", async (req, res) => {
+
+  try {
+
+    const destinationApi =
+      new SpotifyWebApi({
+        clientId:
+          process.env.SPOTIFY_CLIENT_ID,
+        clientSecret:
+          process.env.SPOTIFY_CLIENT_SECRET,
+        redirectUri:
+          process.env.SPOTIFY_REDIRECT_URI
+      });
+
+    destinationApi.setAccessToken(
+      req.session.destinationAccessToken
+    );
+
+    const playlist =
+      await destinationApi.createPlaylist(
+        req.session.destinationUserId,
+        "PlaylistMove Test",
+        {
+          description:
+            "Prueba de transferencia",
+          public: false
+        }
+      );
+
+    res.send(`
+      Playlist creada ✅
+
+      <br><br>
+
+      ${playlist.body.name}
+    `);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.send(
+      "Error creando playlist"
+    );
+
+  }
+
+});
+
 app.listen(PORT, () => {
   console.log("Servidor iniciado en puerto " + PORT);
 });
