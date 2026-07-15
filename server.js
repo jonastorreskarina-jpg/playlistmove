@@ -440,59 +440,70 @@ app.get("/copy-one", async (req, res) => {
 
   try {
 
-    // ORIGEN
+    console.log("PASO 1");
+
     spotifyApi.setAccessToken(
       req.session.accessToken
     );
+
+    console.log("PASO 2");
 
     const sourcePlaylist =
       await spotifyApi.getPlaylist(
         "1XBaKyBtSyRv6SJD4bD02G"
       );
 
+    console.log("PASO 3");
+
     const trackUris =
       sourcePlaylist.body.items.items
         .map(t => t.item.uri);
 
-    // DESTINO
+    console.log("TRACKS:", trackUris);
+
     const destinationApi =
       new SpotifyWebApi({
-        clientId:
-          process.env.SPOTIFY_CLIENT_ID,
-        clientSecret:
-          process.env.SPOTIFY_CLIENT_SECRET,
-        redirectUri:
-          process.env.SPOTIFY_REDIRECT_URI
+        clientId: process.env.SPOTIFY_CLIENT_ID,
+        clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+        redirectUri: process.env.SPOTIFY_REDIRECT_URI
       });
+
+    console.log("PASO 4");
 
     destinationApi.setAccessToken(
       req.session.destinationAccessToken
     );
 
+    console.log("PASO 5");
+
+    const me =
+      await destinationApi.getMe();
+
+    console.log("DESTINO:", me.body.display_name);
+
+    console.log("PASO 6");
+
     const newPlaylist =
       await destinationApi.createPlaylist(
         "Copia Alegria",
-        {
-          public: false
-        }
+        { public: false }
       );
+
+    console.log("PASO 7");
 
     await destinationApi.addTracksToPlaylist(
       newPlaylist.body.id,
       trackUris
     );
 
-    res.send(`
-      Copiada ✅
+    console.log("PASO 8");
 
-      <br><br>
-
-      ${newPlaylist.body.name}
-    `);
+    res.send("OK");
 
   } catch (err) {
 
-    console.log(err);
+    console.log("ERROR:");
+    console.log(err.body || err);
 
     res.send(
       "<pre>" +
