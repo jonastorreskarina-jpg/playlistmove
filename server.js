@@ -296,8 +296,6 @@ ${JSON.stringify(
 app.get("/debug", (req, res) => {
 
   res.send(`
-    <h1>Debug</h1>
-
     <pre>
 ${JSON.stringify({
   sourceToken:
@@ -305,6 +303,9 @@ ${JSON.stringify({
 
   destinationToken:
     !!req.session.destinationAccessToken,
+
+  destinationUserId:
+    req.session.destinationUserId,
 
   selected:
     req.session.selectedPlaylists
