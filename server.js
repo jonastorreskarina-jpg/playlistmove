@@ -399,16 +399,20 @@ app.get("/test-read", async (req, res) => {
       req.session.accessToken
     );
 
-    const playlists =
-      await spotifyApi.getUserPlaylists();
+    const tracks =
+      await spotifyApi.getPlaylistTracks(
+        "1XBaKyBtSyRv6SJD4bD02G"
+      );
 
     res.send(`
       <pre>
 ${JSON.stringify(
-  playlists.body.items.map(p => ({
-    id: p.id,
-    name: p.name,
-    owner: p.owner.display_name
+  tracks.body.items.map(t => ({
+    name: t.track.name,
+    artist:
+      t.track.artists
+        .map(a => a.name)
+        .join(", ")
   })),
   null,
   2
