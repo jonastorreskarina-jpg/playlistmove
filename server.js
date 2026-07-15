@@ -90,26 +90,16 @@ app.get("/playlists", async (req, res) => {
 
   try {
 
-    console.log("SESSION:", req.session);
-
-if (!req.session.accessToken) {
-
-  console.log("NO HAY TOKEN");
-
-  return res.send("NO HAY TOKEN EN SESION");
-
-}
+    if (!req.session.accessToken) {
+      return res.redirect("/");
+    }
 
     spotifyApi.setAccessToken(
       req.session.accessToken
     );
 
     const data =
-  await spotifyApi.getUserPlaylists();
-
-console.log(
-  JSON.stringify(data.body, null, 2)
-);
+      await spotifyApi.getUserPlaylists();
 
     let html = `
       <h1>Mis Playlists</h1>
@@ -118,22 +108,17 @@ console.log(
 
     data.body.items.forEach(p => {
 
-      html += `
-        <li>
-          ${p.name}
-          (${p.tracks.total} canciones)
-        </li>
-      `;
+  html += `
+    <li>
+      ${p.name}
+    </li>
+  `;
 
-    });
+});
 
     html += "</ul>";
 
-    res.send(`
-<pre>
-${JSON.stringify(data.body, null, 2)}
-</pre>
-`);
+    res.send(html);
 
   } catch (err) {
 
