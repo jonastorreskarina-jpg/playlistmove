@@ -509,16 +509,33 @@ console.log(
   )
 );
 
-    res.send(`
-<pre>
-${JSON.stringify(
-  newPlaylist.body,
-  null,
-  2
-)}
-</pre>
+console.log("PASO 7.5");
+
+console.log("TRACKS:", trackUris);
+
+const result =
+  await destinationApi.addTracksToPlaylist(
+    newPlaylist.body.id,
+    trackUris
+  );
+
+console.log("PASO 8");
+
+console.log(
+  JSON.stringify(
+    result.body,
+    null,
+    2
+  )
+);
+
+res.send(`
+  Playlist copiada ✅
+
+  <br><br>
+
+  ${newPlaylist.body.name}
 `);
-return;
 
     console.log("PASO 8");
 
@@ -526,20 +543,30 @@ return;
 
   } catch (err) {
 
-    console.log("ERROR:");
-    console.log(err.body || err);
+  console.log("ERROR COMPLETO:");
+  console.log(err);
 
-    res.send(
-      "<pre>" +
+  if (err.body) {
+    console.log(
       JSON.stringify(
-        err.body || err,
+        err.body,
         null,
         2
-      ) +
-      "</pre>"
+      )
     );
-
   }
+
+  res.send(
+    "<pre>" +
+    JSON.stringify(
+      err.body || err,
+      null,
+      2
+    ) +
+    "</pre>"
+  );
+
+}
 
 });
 
