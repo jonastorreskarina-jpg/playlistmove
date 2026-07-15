@@ -110,7 +110,16 @@ app.get("/playlists", async (req, res) => {
     let html = `
   <h1>Mis Playlists</h1>
 
-  <h3>❤️ Canciones que te gustan (${likedSongs.body.total})</h3>
+  <label>
+    <input
+      type="checkbox"
+      value="liked"
+    >
+    ❤️ Canciones que te gustan
+    (${likedSongs.body.total})
+  </label>
+
+  <br><br>
 
   <ul>
 `;
@@ -119,6 +128,11 @@ app.get("/playlists", async (req, res) => {
 
   html += `
     <li>
+      <input
+        type="checkbox"
+        name="playlist"
+        value="${p.id}"
+      >
       ${p.name}
     </li>
   `;
