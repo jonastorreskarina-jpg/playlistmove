@@ -265,6 +265,33 @@ app.get("/connect-destination", (req, res) => {
 
 });
 
+app.get("/transfer", async (req, res) => {
+
+  res.send(`
+    <h1>Transferencia</h1>
+
+    <p>
+      Cuenta origen conectada ✅
+    </p>
+
+    <p>
+      Cuenta destino conectada ✅
+    </p>
+
+    <p>
+      Playlists seleccionadas:
+    </p>
+
+    <pre>
+${JSON.stringify(
+  req.session.selectedPlaylists,
+  null,
+  2
+)}
+    </pre>
+  `);
+
+});
 
 app.listen(PORT, () => {
   console.log("Servidor iniciado en puerto " + PORT);
