@@ -334,15 +334,32 @@ app.get("/create-test-playlist", async (req, res) => {
     );
 
     const playlist =
-      await destinationApi.createPlaylist(
-        req.session.destinationUserId,
-        "PlaylistMove Test",
-        {
-          description:
-            "Prueba de transferencia",
-          public: false
-        }
-      );
+  await destinationApi.createPlaylist(
+    "PlaylistMove Test",
+    {
+      description:
+        "Prueba de transferencia",
+      public: false
+    }
+  );
+
+console.log(
+  "DESTINATION USER:",
+  req.session.destinationUserId
+);
+
+console.log(
+  "TOKEN:",
+  !!req.session.destinationAccessToken
+);
+
+console.log(
+  JSON.stringify(
+    playlist.body,
+    null,
+    2
+  )
+);
 
     res.send(`
       Playlist creada ✅
@@ -354,13 +371,21 @@ app.get("/create-test-playlist", async (req, res) => {
 
   } catch (err) {
 
-    console.log(err);
+  console.log("ERROR COMPLETO:");
+  console.log(err);
 
-    res.send(
-      "Error creando playlist"
-    );
-
+  if (err.body) {
+    console.log("ERROR BODY:");
+    console.log(JSON.stringify(err.body, null, 2));
   }
+
+  res.send(
+    "<pre>" +
+    JSON.stringify(err.body || err, null, 2) +
+    "</pre>"
+  );
+
+}
 
 });
 
