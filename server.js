@@ -83,20 +83,8 @@ app.get("/callback", async (req, res) => {
 
   try {
 
-    const destinationApi =
-  new SpotifyWebApi({
-    clientId:
-      process.env.SPOTIFY_CLIENT_ID,
-    clientSecret:
-      process.env.SPOTIFY_CLIENT_SECRET,
-    redirectUri:
-      process.env.SPOTIFY_REDIRECT_URI_DESTINATION
-  });
-
-const data =
-  await destinationApi.authorizationCodeGrant(
-    code
-  );
+    const data =
+      await spotifyApi.authorizationCodeGrant(code);
 
     spotifyApi.setAccessToken(
       data.body.access_token
@@ -107,13 +95,10 @@ const data =
     );
 
     req.session.accessToken =
-  data.body.access_token;
+      data.body.access_token;
 
-req.session.refreshToken =
-  data.body.refresh_token;
-
-    const me =
-      await spotifyApi.getMe();
+    req.session.refreshToken =
+      data.body.refresh_token;
 
     res.redirect("/playlists");
 
@@ -135,51 +120,48 @@ app.get(
 
     try {
 
-      const data =
-        await spotifyApi.authorizationCodeGrant(
-          code
-        );
+      const destinationApi =
+  new SpotifyWebApi({
+    clientId:
+      process.env.SPOTIFY_CLIENT_ID,
+    clientSecret:
+      process.env.SPOTIFY_CLIENT_SECRET,
+    redirectUri:
+      process.env.SPOTIFY_REDIRECT_URI_DESTINATION
+  });
 
-      req.session.destinationAccessToken =
-        data.body.access_token;
+const data =
+  await destinationApi.authorizationCodeGrant(
+    code
+  );
 
-      req.session.destinationRefreshToken =
-        data.body.refresh_token;
+req.session.destinationAccessToken =
+  data.body.access_token;
 
-      const api =
-        new SpotifyWebApi({
-          clientId:
-            process.env.SPOTIFY_CLIENT_ID,
-          clientSecret:
-            process.env.SPOTIFY_CLIENT_SECRET,
-          redirectUri:
-            process.env.SPOTIFY_REDIRECT_URI
-        });
+req.session.destinationRefreshToken =
+  data.body.refresh_token;
 
-      destinationApi.setAccessToken(
-        data.body.access_token
-      );
+destinationApi.setAccessToken(
+  data.body.access_token
+);
 
-      const me =
+const me =
   await destinationApi.getMe();
 
-      req.session.destinationUserId =
-        me.body.id;
+req.session.destinationUserId =
+  me.body.id;
 
-      res.send(`
-        <h1>
-          Cuenta destino conectada
-        </h1>
+res.send(`
+  <h1>Cuenta destino conectada</h1>
 
-        <p>
-          Usuario:
-          ${me.body.display_name}
-        </p>
+  <p>
+    Usuario: ${me.body.display_name}
+  </p>
 
-        <a href="/transfer">
-          Iniciar transferencia
-        </a>
-      `);
+  <a href="/transfer">
+    Iniciar transferencia
+  </a>
+`);
 
     } catch (err) {
 
