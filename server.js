@@ -51,6 +51,26 @@ app.get("/login", (req, res) => {
 
 });
 
+app.get("/login-destination", (req, res) => {
+
+  const scopes = [
+    "playlist-read-private",
+    "playlist-read-collaborative",
+    "playlist-modify-public",
+    "playlist-modify-private",
+    "user-library-read"
+  ];
+
+  const authorizeURL =
+    spotifyApi.createAuthorizeURL(
+      scopes,
+      "destination"
+    );
+
+  res.redirect(authorizeURL);
+
+});
+
 app.get("/callback", async (req, res) => {
 
   const code = req.query.code;
@@ -88,6 +108,73 @@ req.session.refreshToken =
   }
 
 });
+
+app.get(
+  "/callback-destination",
+  async (req, res) => {
+
+    const code = req.query.code;
+
+    try {
+
+      const data =
+        await spotifyApi.authorizationCodeGrant(
+          code
+        );
+
+      req.session.destinationAccessToken =
+        data.body.access_token;
+
+      req.session.destinationRefreshToken =
+        data.body.refresh_token;
+
+      const api =
+        new SpotifyWebApi({
+          clientId:
+            process.env.SPOTIFY_CLIENT_ID,
+          clientSecret:
+            process.env.SPOTIFY_CLIENT_SECRET,
+          redirectUri:
+            process.env.SPOTIFY_REDIRECT_URI
+        });
+
+      api.setAccessToken(
+        data.body.access_token
+      );
+
+      const me =
+        await api.getMe();
+
+      req.session.destinationUserId =
+        me.body.id;
+
+      res.send(`
+        <h1>
+          Cuenta destino conectada
+        </h1>
+
+        <p>
+          Usuario:
+          ${me.body.display_name}
+        </p>
+
+        <a href="/transfer">
+          Iniciar transferencia
+        </a>
+      `);
+
+    } catch (err) {
+
+      console.log(err);
+
+      res.send(
+        "Error conectando cuenta destino"
+      );
+
+    }
+
+  }
+);
 
 app.get("/playlists", async (req, res) => {
 
@@ -170,17 +257,43 @@ app.get("/playlists", async (req, res) => {
 
 app.post("/selected", (req, res) => {
 
-  res.send(`
-    <h1>Selección recibida</h1>
+  req.session.selectedPlaylists =
+    req.body.playlist;
 
-    <pre>
-${JSON.stringify(req.body, null, 2)}
-    </pre>
+  res.send(`
+    <h1>Playlists seleccionadas</h1>
+
+    <p>
+      ${Array.isArray(req.body.playlist)
+        ? req.body.playlist.length
+        : 1}
+      elementos seleccionados
+    </p>
+
+    <a href="/connect-destination">
+      Conectar cuenta destino
+    </a>
   `);
 
 });
 
 const PORT = process.env.PORT || 3000;
+app.get("/connect-destination", (req, res) => {
+
+  res.send(`
+    <h1>Cuenta destino</h1>
+
+    <p>
+      Aquí conectaremos la segunda cuenta Spotify.
+    </p>
+
+    <a href="/login-destination">
+      Conectar cuenta destino
+    </a>
+  `);
+
+});
+
 
 app.listen(PORT, () => {
   console.log("Servidor iniciado en puerto " + PORT);
