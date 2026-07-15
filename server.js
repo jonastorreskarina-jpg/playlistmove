@@ -108,8 +108,7 @@ if (!req.session.accessToken) {
   await spotifyApi.getUserPlaylists();
 
 console.log(
-  "PLAYLISTS:",
-  data.body.items.length
+  JSON.stringify(data.body, null, 2)
 );
 
     let html = `
@@ -130,7 +129,11 @@ console.log(
 
     html += "</ul>";
 
-    res.send(html);
+    res.send(`
+<pre>
+${JSON.stringify(data.body, null, 2)}
+</pre>
+`);
 
   } catch (err) {
 
