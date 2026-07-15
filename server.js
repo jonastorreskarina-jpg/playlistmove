@@ -436,6 +436,78 @@ ${JSON.stringify(
 
 });
 
+app.get("/copy-one", async (req, res) => {
+
+  try {
+
+    // ORIGEN
+    spotifyApi.setAccessToken(
+      req.session.accessToken
+    );
+
+    const sourcePlaylist =
+      await spotifyApi.getPlaylist(
+        "1XBaKyBtSyRv6SJD4bD02G"
+      );
+
+    const trackUris =
+      sourcePlaylist.body.items.items
+        .map(t => t.item.uri);
+
+    // DESTINO
+    const destinationApi =
+      new SpotifyWebApi({
+        clientId:
+          process.env.SPOTIFY_CLIENT_ID,
+        clientSecret:
+          process.env.SPOTIFY_CLIENT_SECRET,
+        redirectUri:
+          process.env.SPOTIFY_REDIRECT_URI
+      });
+
+    destinationApi.setAccessToken(
+      req.session.destinationAccessToken
+    );
+
+    const newPlaylist =
+      await destinationApi.createPlaylist(
+        "Copia Alegria",
+        {
+          public: false
+        }
+      );
+
+    await destinationApi.addTracksToPlaylist(
+      newPlaylist.body.id,
+      trackUris
+    );
+
+    res.send(`
+      Copiada ✅
+
+      <br><br>
+
+      ${newPlaylist.body.name}
+    `);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.send(
+      "<pre>" +
+      JSON.stringify(
+        err.body || err,
+        null,
+        2
+      ) +
+      "</pre>"
+    );
+
+  }
+
+});
+
 app.listen(PORT, () => {
   console.log("Servidor iniciado en puerto " + PORT);
 });
