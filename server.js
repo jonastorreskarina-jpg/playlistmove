@@ -293,6 +293,27 @@ ${JSON.stringify(
 
 });
 
+app.get("/debug", (req, res) => {
+
+  res.send(`
+    <h1>Debug</h1>
+
+    <pre>
+${JSON.stringify({
+  sourceToken:
+    !!req.session.accessToken,
+
+  destinationToken:
+    !!req.session.destinationAccessToken,
+
+  selected:
+    req.session.selectedPlaylists
+}, null, 2)}
+    </pre>
+  `);
+
+});
+
 app.listen(PORT, () => {
   console.log("Servidor iniciado en puerto " + PORT);
 });
