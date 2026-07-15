@@ -329,6 +329,8 @@ app.get("/create-test-playlist", async (req, res) => {
           process.env.SPOTIFY_REDIRECT_URI
       });
 
+
+      
     destinationApi.setAccessToken(
       req.session.destinationAccessToken
     );
@@ -386,6 +388,46 @@ console.log(
   );
 
 }
+
+});
+
+app.get("/test-read", async (req, res) => {
+
+  try {
+
+    spotifyApi.setAccessToken(
+      req.session.accessToken
+    );
+
+    const playlistId =
+      req.session.selectedPlaylists[1];
+
+    const tracks =
+      await spotifyApi.getPlaylistTracks(
+        playlistId
+      );
+
+    res.send(`
+      <h1>Tracks encontrados</h1>
+
+      <pre>
+${JSON.stringify(
+  tracks.body.items.map(
+    t => t.track.name
+  ),
+  null,
+  2
+)}
+      </pre>
+    `);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.send("Error");
+
+  }
 
 });
 
