@@ -47,6 +47,11 @@ app.get("/login", (req, res) => {
   const authorizeURL =
     spotifyApi.createAuthorizeURL(scopes);
 
+console.log(
+  "ORIGIN URI:",
+  process.env.SPOTIFY_REDIRECT_URI
+);
+
   res.redirect(authorizeURL);
 
 });
@@ -69,6 +74,11 @@ app.get("/login-destination", (req, res) => {
     scope: scopes.join(" "),
     state: "destination"
   });
+
+console.log(
+  "DESTINATION URI:",
+  process.env.SPOTIFY_REDIRECT_URI_DESTINATION
+);
 
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
