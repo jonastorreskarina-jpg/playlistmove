@@ -87,6 +87,11 @@ app.get("/callback", async (req, res) => {
     const data =
       await spotifyApi.authorizationCodeGrant(code);
 
+      console.log(
+  "SCOPES:",
+  data.body.scope
+);
+
       if (state === "destination") {
 
   req.session.destinationAccessToken =
@@ -567,6 +572,51 @@ res.send(`
   );
 
 }
+
+});
+
+
+app.get("/me", async (req, res) => {
+
+  try {
+
+    const destinationApi =
+      new SpotifyWebApi({
+        clientId: process.env.SPOTIFY_CLIENT_ID,
+        clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+        redirectUri: process.env.SPOTIFY_REDIRECT_URI
+      });
+
+    destinationApi.setAccessToken(
+      req.session.destinationAccessToken
+    );
+
+    const me =
+      await destinationApi.getMe();
+
+    res.send(`
+      <pre>
+${JSON.stringify(
+  me.body,
+  null,
+  2
+)}
+      </pre>
+    `);
+
+  } catch (err) {
+
+    res.send(
+      "<pre>" +
+      JSON.stringify(
+        err.body || err,
+        null,
+        2
+      ) +
+      "</pre>"
+    );
+
+  }
 
 });
 
