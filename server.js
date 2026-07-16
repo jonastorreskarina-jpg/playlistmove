@@ -640,6 +640,60 @@ ${JSON.stringify(
 
 });
 
+app.get("/test-add-own-track", async (req, res) => {
+
+  try {
+
+    const destinationApi =
+      new SpotifyWebApi({
+        clientId: process.env.SPOTIFY_CLIENT_ID,
+        clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+        redirectUri: process.env.SPOTIFY_REDIRECT_URI
+      });
+
+    destinationApi.setAccessToken(
+      req.session.destinationAccessToken
+    );
+
+    const playlist =
+      await destinationApi.createPlaylist(
+        "Test Directo",
+        { public: false }
+      );
+
+    await destinationApi.addTracksToPlaylist(
+      playlist.body.id,
+      [
+        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh"
+      ]
+    );
+
+    res.send("OK");
+
+  } catch (err) {
+
+    console.log(
+      JSON.stringify(
+        err.body || err,
+        null,
+        2
+      )
+    );
+
+    res.send(
+      "<pre>" +
+      JSON.stringify(
+        err.body || err,
+        null,
+        2
+      ) +
+      "</pre>"
+    );
+
+  }
+
+});
+
 app.listen(PORT, () => {
   console.log("Servidor iniciado en puerto " + PORT);
 });
