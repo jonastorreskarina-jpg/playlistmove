@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const SpotifyWebApi = require("spotify-web-api-node");
 const session = require("express-session");
+const axios = require("axios");
 
 const app = express();
 
@@ -518,11 +519,30 @@ console.log("PASO 7.5");
 
 console.log("TRACKS:", trackUris);
 
-const result =
-  await destinationApi.addTracksToPlaylist(
-    newPlaylist.body.id,
-    trackUris
-  );
+const result = await axios.post(
+  `https://api.spotify.com/v1/playlists/${newPlaylist.body.id}/tracks`,
+  {
+    uris: trackUris
+  },
+  {
+    headers: {
+      Authorization:
+        `Bearer ${req.session.destinationAccessToken}`,
+      "Content-Type":
+        "application/json"
+    }
+  }
+);
+
+console.log("AXIOS RESULT:");
+
+console.log(
+  JSON.stringify(
+    result.data,
+    null,
+    2
+  )
+);
 
 console.log("PASO 8");
 
