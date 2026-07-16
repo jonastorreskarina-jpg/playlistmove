@@ -68,10 +68,10 @@ app.get("/login-destination", (req, res) => {
   ];
 
   const authorizeURL =
-    spotifyApi.createAuthorizeURL(
-      scopes,
-      "destination"
-    );
+  spotifyApi.createAuthorizeURL(
+    scopes,
+    "destination"
+  ) + "&show_dialog=true";
 
   res.redirect(authorizeURL);
 
